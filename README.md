@@ -30,7 +30,7 @@ The Northwind database contains 8 core tables representing a real-world business
 
 **Entity Relationship Diagram (ERD):**
 
-![ERD](erd.png)
+![ERD](northwind_erd.png)
 
 ---
 

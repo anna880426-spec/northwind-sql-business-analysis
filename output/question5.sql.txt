@@ -1,0 +1,17 @@
+select sub.product_name , 
+to_char(sub.initial_price::numeric,'FM999999.00') as initial , 
+to_char(sub.current_price::numeric,'FM999999.00') as current,
+round((sub.current_price - sub.initial_price)/sub.initial_price*100) as percentage
+from
+(select p.product_id , p.product_name ,order_date, od.unit_price ,
+first_value(od.unit_price) over(partition by od.product_id order by order_date asc )  as  initial_price,
+first_value(od.unit_price) over(partition by od.product_id order by order_date desc )  as current_price
+FROM public.order_details od 
+JOIN orders o    ON o.order_id = od.order_id 
+join public.products p  on od.product_id  = p.product_id 
+) as sub
+where sub.current_price > sub.initial_price
+group by sub.product_name ,sub.initial_price, sub.current_price
+having round((sub.current_price - sub.initial_price)/sub.initial_price*100) not between 20 and 30
+order by percentage asc
+;

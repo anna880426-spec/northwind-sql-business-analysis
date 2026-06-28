@@ -1,0 +1,15 @@
+select c.category_name, first_name || ' ' || last_name as full_name,
+round(sum(od.quantity::numeric*od.unit_price::numeric*(1-od.discount::numeric )),2)  as total_sales_amount,
+round(sum(od.quantity::numeric*od.unit_price::numeric*(1-od.discount::numeric ))/
+sum(sum(od.quantity::numeric*od.unit_price::numeric*(1-od.discount::numeric ))) over (partition by e.employee_id),5)  as sales_staff_ratio,
+round(sum(od.quantity::numeric*od.unit_price::numeric*(1-od.discount::numeric )) / 
+(select sum(od.quantity::numeric*od.unit_price::numeric*(1-od.discount::numeric  ))  
+from order_details od ),5) as total_amount 
+from products p
+join categories c on p.category_id =  c.category_id
+join order_details od on p.product_id = od.product_id 
+join orders o on od.order_id = o.order_id 
+join public.employees e on o.employee_id = e.employee_id 
+group by c.category_name, full_name, e.employee_id
+order by c.category_name asc, total_sales_amount desc
+;

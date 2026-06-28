@@ -1,0 +1,26 @@
+with med_data as 
+(select p.category_id,
+round(percentile_disc(0.5) within group (order by p.unit_price::numeric),2) as median_price
+from public.products p 
+where p.discontinued = 0
+group by p.category_id 
+)
+select c.category_name, p.product_name, p.unit_price,
+round(avg(p.unit_price::numeric) over (partition by category_name),2) as avg_price,
+med_data.median_price,
+case 
+	when p.unit_price::numeric > round(avg(p.unit_price::numeric) over (partition by category_name),2) then 'Over Average'
+	when p.unit_price::numeric = round(avg(p.unit_price::numeric) over (partition by category_name),2) then 'Equal Average'
+	else 'Below Average'
+end as position_against_c_avg,
+case 
+	when p.unit_price::numeric > med_data.median_price then 'Over Median'
+	when p.unit_price::numeric = med_data.median_price then 'Equal Median'
+	else 'Below Median'
+end as position_against_median
+from public.products p 
+join public.categories c on p.category_id = c.category_id 
+join med_data on med_data.category_id = p.category_id 
+where p.discontinued = 0
+order by c.category_name asc, p.product_name asc
+;

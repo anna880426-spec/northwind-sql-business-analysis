@@ -1,0 +1,20 @@
+select c.category_name,
+case 
+when s.country in ('UK', 'Spain', 'Sweden', 'Germany', 'Norway', 'Denmark', 'Netherlands', 'Finland', 'Italy', 'France') then 'Europe'
+when s.country in ('USA', 'Canada', 'Brazil') then 'America'
+else 'Asia-Pacific'
+end as area,
+sum(p.unit_in_stock ) as total_in_stock,
+sum(p.unit_on_order ) as total_in_order,
+sum(p.reorder_level ) as total_in_reorder
+from public.categories c     
+join public.products p    on p.category_id = c.category_id 
+join  public.suppliers s  on p.supplier_id = s.supplier_id
+group by c.category_name , 
+case 
+when s.country in ('UK', 'Spain', 'Sweden', 'Germany', 'Norway', 'Denmark', 'Netherlands', 'Finland', 'Italy', 'France') then 'Europe'
+when s.country in ('USA', 'Canada', 'Brazil') then 'America'
+else 'Asia-Pacific'
+end
+order by c.category_name asc, area asc, total_in_reorder asc
+;

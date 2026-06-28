@@ -1,0 +1,11 @@
+select 
+c.country,
+count(o.order_id) as total_number,
+round(avg(o.shipped_date - o.order_date),2) as average
+from public.orders o 
+join public.customers c on o.customer_id = c.customer_id
+where o.order_date between '1998-01-01' and '1998-12-31'
+group by c.country
+having round(avg(o.shipped_date - o.order_date),2) >= 5 and count(o.order_id) >10
+order by c.country asc
+;

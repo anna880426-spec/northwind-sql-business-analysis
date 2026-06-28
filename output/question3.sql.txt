@@ -1,0 +1,10 @@
+select 
+(e.first_name||' '||e.last_name) as employees_full_name ,
+e.title,
+extract(year from age(e.hire_date, e.birth_date)) as age,
+(k.first_name||' '||k.last_name) as managers_full_name,
+k.title as managers_title
+from public.employees e 
+left join public.employees k on e.reports_to  = k.employee_id
+order by age asc  , employees_full_name asc
+;
